@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import type { Speech, Point } from '../types';
 import { ChevronLeft, ChevronRight, Pencil, History } from 'lucide-react';
-import { formatTime, formatTimeDelta } from './Timer';
+import { formatTime } from './Timer';
 import { marked } from 'marked';
 
 interface CueCardPreviewProps {
@@ -67,10 +67,6 @@ export const CueCardPreview: React.FC<CueCardPreviewProps> = ({ speech, currentM
   
   const hasContent = mainPoint && (mainPoint.content.length > 0 || mainPoint.subPoints.length > 0);
 
-  const hasCurrentTime = mainPoint?.timestamp !== undefined;
-  const hasPreviousTime = mainPoint?.previousTimestamp !== undefined;
-  const delta = hasCurrentTime && hasPreviousTime ? mainPoint.timestamp! - mainPoint.previousTimestamp! : 0;
-
   const touchStartX = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const [animationClass, setAnimationClass] = useState('animate-fade-in');
@@ -131,7 +127,7 @@ export const CueCardPreview: React.FC<CueCardPreviewProps> = ({ speech, currentM
 
   return (
     <div 
-        className="relative flex-grow flex flex-col items-center justify-center px-4 md:px-20"
+        className="relative flex-grow flex flex-col items-center justify-start pt-8 md:pt-12 px-4 md:px-20"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleClick}
@@ -143,27 +139,6 @@ export const CueCardPreview: React.FC<CueCardPreviewProps> = ({ speech, currentM
           key={currentMainPointIndex} // Ensures component re-renders for animation
           className={`w-full max-w-4xl h-full flex flex-col bg-slate-100 text-slate-900 rounded-lg shadow-2xl p-6 md:p-10 ${animationClass}`}
         >
-          
-          {hasCurrentTime && (
-            <div className="absolute top-6 right-8 text-right font-mono text-sm pointer-events-none">
-              <div className="text-slate-600" title="Current time for this slide">
-                {formatTime(mainPoint.timestamp!)}
-              </div>
-              {hasPreviousTime && (
-                <>
-                  <div className="text-slate-400" title="Previous time for this slide">
-                    {formatTime(mainPoint.previousTimestamp!)}
-                  </div>
-                  <div 
-                    className={`font-bold ${delta > 0 ? 'text-red-500' : 'text-green-500'}`}
-                    title="Difference from previous time"
-                  >
-                    {formatTimeDelta(delta)}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
           
           <div className="flex justify-between items-start gap-4 mb-6 pb-4 border-b-2 border-slate-300">
             <h2 className="text-4xl md:text-5xl font-extrabold text-sky-700 break-words">

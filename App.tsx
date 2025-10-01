@@ -19,6 +19,7 @@ import { generateEpub } from './services/epubGenerator';
 import { generateMindMapMarkup } from './services/mindMapGenerator';
 import { Timer } from './components/Timer';
 import { ImportExportMenu } from './components/ImportExportMenu';
+import { TimingDeltaDisplay } from './components/TimingDeltaDisplay';
 
 const LOCAL_STORAGE_MARKDOWN_KEY = 'psh-markdown';
 const LOCAL_STORAGE_INDEX_KEY = 'psh-index';
@@ -528,7 +529,12 @@ const App: React.FC = () => {
       default:
         return null;
     }
-  }
+  };
+
+  const mainPoint = speech?.mainPoints[currentMainPointIndex];
+  const hasCurrentTime = mainPoint?.timestamp !== undefined;
+  const hasPreviousTime = mainPoint?.previousTimestamp !== undefined;
+  const delta = hasCurrentTime && hasPreviousTime ? mainPoint.timestamp! - mainPoint.previousTimestamp! : null;
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 lg:p-6 flex flex-col">
@@ -597,8 +603,9 @@ const App: React.FC = () => {
             </button>
         </div>
       </header>
-      <main className="flex-grow flex flex-col">
+      <main className="flex-grow flex flex-col relative">
         {renderPreview()}
+        <TimingDeltaDisplay delta={delta} />
       </main>
       {editingSectionIndex !== null && (
         <SectionEditorModal
