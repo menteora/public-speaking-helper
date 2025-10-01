@@ -538,6 +538,38 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 lg:p-6 flex flex-col">
+      <style>{`
+        /* Custom styles for blockquotes to ensure visibility */
+        .prose blockquote p {
+          margin: 0;
+        }
+        .prose-invert blockquote {
+          border-left: 4px solid #475569; /* slate-600 */
+          padding-left: 1rem;
+          font-style: italic;
+          color: #94a3b8; /* slate-400 */
+        }
+        .prose-slate blockquote {
+          border-left: 4px solid #cbd5e1; /* slate-300 */
+          padding-left: 1rem;
+          font-style: italic;
+          font-weight: bold; /* Bolder for emphasis */
+          color: #475569; /* slate-600 */
+        }
+        /* Custom styles for lists in Cue Card view to ensure they render correctly */
+        .prose-slate ul {
+          list-style-type: disc;
+          padding-left: 1.75rem;
+          margin-top: 1.25em;
+          margin-bottom: 1.25em;
+        }
+        .prose-slate ul > li {
+          padding-left: 0.25rem;
+        }
+        .prose-slate ul > li::marker {
+          color: #64748b; /* slate-500 */
+        }
+      `}</style>
        <div id="pdf-render-container" style={{ position: 'absolute', left: '-9999px', width: '1280px', height: '720px', backgroundColor: '#1e293b' }}></div>
       <header className="mb-6 flex flex-col items-center gap-4 md:flex-row md:justify-between">
         <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500 text-center md:text-left">
