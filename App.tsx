@@ -167,10 +167,9 @@ const App: React.FC = () => {
   };
 
   const handleRestartPresentation = () => {
-    if (window.confirm('Sei sicuro di voler ricominciare la presentazione? Il timer verrà azzerato, i tempi attuali verranno salvati come sessione precedente e tornerai alla prima slide.')) {
-      handleTimerReset();
-      setCurrentMainPointIndex(0);
-    }
+    // The `window.confirm` was removed because it is not supported in the sandboxed environment.
+    handleTimerReset();
+    setCurrentMainPointIndex(0);
   };
 
   const handleJumpToTime = (time: number) => {
