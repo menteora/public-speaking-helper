@@ -1,0 +1,5 @@
+{
+  "name": "Public Speaking Helper",
+  "description": "An application to turn markdown notes into an interactive tool for public speaking. Structure your speech with headers and navigate through main points like a mind map.",
+  "requestFramePermissions": []
+}
