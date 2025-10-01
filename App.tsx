@@ -548,6 +548,7 @@ const App: React.FC = () => {
           padding-left: 1rem;
           font-style: italic;
           color: #94a3b8; /* slate-400 */
+          font-size: 1.1em;
         }
         .prose-slate blockquote {
           border-left: 4px solid #cbd5e1; /* slate-300 */
@@ -555,6 +556,7 @@ const App: React.FC = () => {
           font-style: italic;
           font-weight: bold; /* Bolder for emphasis */
           color: #475569; /* slate-600 */
+          font-size: 1.1em;
         }
         /* Custom styles for lists in Cue Card view to ensure they render correctly */
         .prose-slate ul {
