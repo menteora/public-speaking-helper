@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import * as docx from 'docx';
 import saveAs from 'file-saver';
+import { marked } from 'marked';
+import JSZip from 'jszip';
+import html2canvas from 'html2canvas';
+import mermaid from 'mermaid';
 import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { parseMarkdownToSpeech } from './services/markdownParser';
@@ -15,15 +19,6 @@ import { generateEpub } from './services/epubGenerator';
 import { generateMindMapMarkup } from './services/mindMapGenerator';
 import { Timer } from './components/Timer';
 import { ImportExportMenu } from './components/ImportExportMenu';
-
-declare global {
-  interface Window {
-    mermaid: any;
-    html2canvas: any;
-    marked: any;
-    JSZip: any;
-  }
-}
 
 const LOCAL_STORAGE_MARKDOWN_KEY = 'psh-markdown';
 const LOCAL_STORAGE_INDEX_KEY = 'psh-index';
@@ -72,16 +67,14 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Initialize mermaid if available
-    if (window.mermaid) {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'dark',
-        flowchart: {
-            nodeSpacing: 50,
-            rankSpacing: 35, // Compact horizontal spacing
-        }
-      });
-    }
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      flowchart: {
+          nodeSpacing: 50,
+          rankSpacing: 35, // Compact horizontal spacing
+      }
+    });
   }, []);
   
   // Save markdown to local storage
@@ -233,13 +226,6 @@ const App: React.FC = () => {
   };
   
   const handleMindMapPdfExport = async () => {
-    const html2canvas = window.html2canvas;
-
-    if (!html2canvas) {
-        alert("PDF generation libraries are not loaded. Please check your internet connection and try again.");
-        return;
-    }
-
     if (!speech || speech.mainPoints.length === 0) {
         alert("No content to export.");
         return;
@@ -272,7 +258,7 @@ const App: React.FC = () => {
             renderContainer.innerHTML = markup;
             renderContainer.removeAttribute('data-processed');
             
-            await window.mermaid.run({ nodes: [renderContainer] });
+            await mermaid.run({ nodes: [renderContainer] });
             // Small delay to ensure mermaid has finished rendering SVG
             await new Promise(resolve => setTimeout(resolve, 500));
 

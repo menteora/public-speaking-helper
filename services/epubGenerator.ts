@@ -1,9 +1,7 @@
 import type { Speech, Point } from '../types';
 import saveAs from 'file-saver';
-
-// These are globals from the scripts in index.html
-declare const marked: any;
-declare const JSZip: any;
+import { marked } from 'marked';
+import JSZip from 'jszip';
 
 // Helper to sanitize strings for XML
 const escapeXml = (unsafe: string): string => {
@@ -57,11 +55,6 @@ const generateChapterHtml = (mainPoint: Point): string => {
 export const generateEpub = async (speech: Speech | null): Promise<void> => {
     if (!speech || speech.mainPoints.length === 0) {
         alert("No speech content available to export.");
-        return;
-    }
-
-    if (typeof JSZip === 'undefined') {
-        alert("EPUB generation libraries are not loaded. Please check your internet connection and try again.");
         return;
     }
 

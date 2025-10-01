@@ -1,7 +1,5 @@
-
 import type { Speech, Point, ContentItem } from '../types';
-
-declare const marked: any;
+import { marked } from 'marked';
 
 export const parseMarkdownToSpeech = (markdownText: string): Speech => {
   if (!markdownText.trim()) {

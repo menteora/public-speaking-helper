@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { Speech } from '../types';
 import { generateMindMapMarkup } from '../services/mindMapGenerator';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-// FIX: Declare the global mermaid variable to resolve TypeScript error.
-declare const mermaid: any;
+import mermaid from 'mermaid';
 
 interface MindMapPreviewProps {
   speech: Speech | null;

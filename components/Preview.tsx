@@ -1,8 +1,7 @@
 import React from 'react';
 import type { Speech, Point } from '../types';
 import { Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
-
-declare const marked: any;
+import { marked } from 'marked';
 
 interface PreviewProps {
   speech: Speech | null;

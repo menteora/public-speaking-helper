@@ -2,8 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import type { Speech, Point } from '../types';
 import { ChevronLeft, ChevronRight, Pencil, History } from 'lucide-react';
 import { formatTime, formatTimeDelta } from './Timer';
-
-declare const marked: any;
+import { marked } from 'marked';
 
 interface CueCardPreviewProps {
   speech: Speech | null;
