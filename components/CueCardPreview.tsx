@@ -140,7 +140,7 @@ export const CueCardPreview: React.FC<CueCardPreviewProps> = ({ speech, currentM
           className={`w-full max-w-4xl h-full flex flex-col bg-slate-100 text-slate-900 rounded-lg shadow-2xl p-6 md:p-10 ${animationClass}`}
         >
           
-          <div className="flex justify-between items-start gap-4 mb-6 pb-4 border-b-2 border-slate-300">
+          <div className="flex justify-between items-start gap-4 mb-4 pb-4 border-b-2 border-slate-300">
             <h2 className="text-4xl md:text-5xl font-extrabold text-sky-700 break-words">
               {mainPoint.title}
             </h2>
@@ -155,12 +155,14 @@ export const CueCardPreview: React.FC<CueCardPreviewProps> = ({ speech, currentM
           <div className="overflow-y-auto flex-grow custom-scrollbar-light pr-4 -mr-4">
             {hasContent ? (
               <>
-                <div className="space-y-4 mb-6">
-                  {mainPoint.content.map((item, i) => (
-                    <ContentRenderer key={`main-content-${i}`} html={item.html} />
-                  ))}
-                </div>
-                <div className="space-y-8">
+                {mainPoint.content.length > 0 && (
+                  <div className="space-y-4 mb-4">
+                    {mainPoint.content.map((item, i) => (
+                      <ContentRenderer key={`main-content-${i}`} html={item.html} />
+                    ))}
+                  </div>
+                )}
+                <div className="space-y-4">
                   {mainPoint.subPoints.map((subPoint, subIndex) => (
                     <PointRenderer key={subIndex} point={subPoint} isTopLevel={true} />
                   ))}

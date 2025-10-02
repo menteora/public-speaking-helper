@@ -85,7 +85,7 @@ export const Preview: React.FC<PreviewProps> = ({ speech, currentMainPointIndex,
       >
         {hasContent ? (
           <div className="animate-fade-in">
-            <div className="flex items-center justify-between mb-6 pb-2 border-b-2 border-slate-600">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-slate-600">
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-blue-400">
                 {mainPoint.title}
               </h2>
@@ -98,12 +98,14 @@ export const Preview: React.FC<PreviewProps> = ({ speech, currentMainPointIndex,
               </button>
             </div>
             {/* Direct content for H2 */}
-            <div className="space-y-2 mb-6">
-              {mainPoint.content.map((item, i) => (
-                <ContentRenderer key={`main-content-${i}`} html={item.html} />
-              ))}
-            </div>
-            <div className="space-y-6">
+            {mainPoint.content.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {mainPoint.content.map((item, i) => (
+                  <ContentRenderer key={`main-content-${i}`} html={item.html} />
+                ))}
+              </div>
+            )}
+            <div className="space-y-4">
               {mainPoint.subPoints.map((subPoint, subIndex) => (
                 <PointRenderer key={subIndex} point={subPoint} isTopLevel={true} />
               ))}
