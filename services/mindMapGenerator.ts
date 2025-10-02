@@ -1,9 +1,50 @@
 import type { Point } from '../types';
 
+// Helper function to wrap text with <br> for Mermaid
+const wrapText = (text: string, maxLength: number): string => {
+  if (!text || text.length <= maxLength) {
+    return text;
+  }
+  
+  const words = text.split(' ');
+  let currentLine = '';
+  const lines: string[] = [];
+
+  words.forEach(word => {
+    // If a single word is longer than maxLength, it should be on its own line
+    if (word.length > maxLength) {
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+        lines.push(word);
+        currentLine = '';
+        return;
+    }
+
+    if ((currentLine + ' ' + word).trim().length > maxLength) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      if (currentLine === '') {
+        currentLine = word;
+      } else {
+        currentLine += ` ${word}`;
+      }
+    }
+  });
+
+  if (currentLine.length > 0) {
+    lines.push(currentLine);
+  }
+
+  return lines.join('<br>');
+};
+
+
 // Helper to create a unique ID and escape the label text for Mermaid
-const createNode = (id: string, text: string, shape: 'rect' | 'round' | 'stadium' = 'rect'): string => {
+const createNode = (id: string, text: string, shape: 'rect' | 'round' | 'stadium' = 'rect', wrapLength: number | null = null): string => {
   // Escape characters that might break the Mermaid syntax and strip some markdown
-  const escapedText = text
+  let processedText = text
     .trim()
     .replace(/&/g, '#amp;')
     .replace(/"/g, '#quot;')
@@ -15,16 +56,20 @@ const createNode = (id: string, text: string, shape: 'rect' | 'round' | 'stadium
     .replace(/_(.*?)_/g, '$1')     // Italic
     .replace(/`([^`]+)`/g, '$1');   // Inline code
 
+  if (wrapLength !== null) {
+      processedText = wrapText(processedText, wrapLength);
+  }
+
   let nodeString = `${id}`;
   switch(shape) {
       case 'rect':
-        nodeString += `["${escapedText}"]`;
+        nodeString += `["${processedText}"]`;
         break;
       case 'round':
-        nodeString += `("${escapedText}")`;
+        nodeString += `("${processedText}")`;
         break;
       case 'stadium':
-        nodeString += `(["${escapedText}"])`;
+        nodeString += `(["${processedText}"])`;
         break;
   }
   return nodeString;
@@ -32,23 +77,35 @@ const createNode = (id: string, text: string, shape: 'rect' | 'round' | 'stadium
 
 const processContent = (pointId: string, content: Point['content'], markup: any) => {
     content.forEach((contentItem, contentIndex) => {
-        const rawText = contentItem.html;
+        let rawText = contentItem.html;
+
+        if (contentItem.type === 'blockquote') {
+            // Strip the leading '>' from each line for cleaner display in the mind map
+            rawText = rawText.split('\n').map(line => line.replace(/^\s*>\s?/, '')).join('\n').trim();
+        }
+
         if (contentItem.type === 'list') {
             const listItems = rawText.split('\n').filter(line => line.trim().match(/^(\*|-|\+)\s/));
             listItems.forEach((item, itemIndex) => {
                 const cleanItem = item.replace(/^(\*|-|\+)\s/, '').trim();
                 if (cleanItem) {
                     const contentId = `${pointId}_c${contentIndex}_${itemIndex}`;
-                    markup.nodes.push(`  ${createNode(contentId, cleanItem, 'rect')}`);
+                    markup.nodes.push(`  ${createNode(contentId, cleanItem, 'rect', 30)}`);
                     markup.links.push(`  ${pointId} --> ${contentId}`);
                     markup.styles.push(`  style ${contentId} fill:#1e293b,stroke:#334155,stroke-width:1px,color:#94a3b8,font-size:13px`);
                 }
             });
-        } else { // paragraph
+        } else { // paragraph or blockquote
+            if (!rawText.trim()) return;
+
             const contentId = `${pointId}_c${contentIndex}`;
-            markup.nodes.push(`  ${createNode(contentId, rawText, 'rect')}`);
+            markup.nodes.push(`  ${createNode(contentId, rawText, 'rect', 35)}`);
             markup.links.push(`  ${pointId} --> ${contentId}`);
-            markup.styles.push(`  style ${contentId} fill:#1e293b,stroke:#334155,stroke-width:1px,color:#94a3b8,font-size:13px`);
+
+            const style = contentItem.type === 'blockquote'
+                ? `style ${contentId} fill:#1e293b,stroke:#334155,stroke-width:1px,color:#94a3b8,font-size:13px,font-style:italic`
+                : `style ${contentId} fill:#1e293b,stroke:#334155,stroke-width:1px,color:#94a3b8,font-size:13px`;
+            markup.styles.push(style);
         }
     });
 };
@@ -63,7 +120,16 @@ const addPointToGraph = (point: Point, parentId: string, markup: any, idPrefix: 
         6: 'rect',
     };
     const shape = shapes[point.level] || 'rect';
-    markup.nodes.push(`  ${createNode(pointId, point.title, shape)}`);
+
+    const wrapLengths: { [key: number]: number } = {
+        3: 35,
+        4: 30,
+        5: 30,
+        6: 30,
+    };
+    const wrapLength = wrapLengths[point.level] || 30;
+
+    markup.nodes.push(`  ${createNode(pointId, point.title, shape, wrapLength)}`);
     markup.links.push(`  ${parentId} --> ${pointId}`);
 
     const styles: { [key: number]: string } = {
@@ -91,7 +157,7 @@ graph ${direction}
   const markup = { nodes: [] as string[], links: [] as string[], styles: [] as string[] };
   
   const rootId = 'root';
-  markup.nodes.push(`  ${createNode(rootId, mainPoint.title, 'stadium')}`);
+  markup.nodes.push(`  ${createNode(rootId, mainPoint.title, 'stadium', 40)}`);
   markup.styles.push(`  style ${rootId} fill:#0284c7,stroke:#333,stroke-width:2px,color:#fff,font-size:18px,font-weight:bold`);
   
   if (mainPoint.subPoints.length === 0 && mainPoint.content.length === 0) {
