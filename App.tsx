@@ -14,7 +14,7 @@ import { PRESET_MARKDOWN } from './constants';
 import { SectionEditorModal } from './components/SectionEditorModal';
 import { MindMapPreview } from './components/MindMapPreview';
 import { CueCardPreview } from './components/CueCardPreview';
-import { Presentation, List, Download, FilePenLine, Upload, SquareCheckBig, RotateCcw } from 'lucide-react';
+import { Presentation, List, Download, FilePenLine, Upload, SquareCheckBig, RotateCcw, ChevronUp, ChevronDown } from 'lucide-react';
 import { generateEpub } from './services/epubGenerator';
 import { generateMindMapMarkup } from './services/mindMapGenerator';
 import { Timer } from './components/Timer';
@@ -52,6 +52,8 @@ const App: React.FC = () => {
   });
   const [isPdfExporting, setIsPdfExporting] = useState(false);
   const [pdfExportProgress, setPdfExportProgress] = useState('');
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+
 
   // Timer state
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
@@ -577,69 +579,80 @@ const App: React.FC = () => {
         }
       `}</style>
        <div id="pdf-render-container" style={{ position: 'absolute', left: '-9999px', width: '1280px', height: '720px', backgroundColor: '#1e293b' }}></div>
-      <header className="mb-6 flex flex-col items-center gap-4 md:flex-row md:justify-between">
-        <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500 text-center md:text-left">
-          Presentation Mode
-        </h1>
-        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
-            <Timer
-              elapsedTime={elapsedTime}
-              isRunning={isTimerRunning}
-              onStartPause={handleTimerStartPause}
-              onReset={handleTimerReset}
-            />
-            <div className="bg-slate-800 p-1 rounded-lg flex items-center gap-1 border border-slate-700">
-                <button 
-                    onClick={() => setPreviewMode('slide')}
-                    className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'slide' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
-                    title="Slide View"
+       <header className={`relative transition-all duration-300 ${isHeaderCollapsed ? 'mb-2' : 'mb-6'}`}>
+        <div className={`transition-all duration-300 ${isHeaderCollapsed ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+          <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500 text-center md:text-left">
+              Presentation Mode
+            </h1>
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+                <Timer
+                  elapsedTime={elapsedTime}
+                  isRunning={isTimerRunning}
+                  onStartPause={handleTimerStartPause}
+                  onReset={handleTimerReset}
+                />
+                <div className="bg-slate-800 p-1 rounded-lg flex items-center gap-1 border border-slate-700">
+                    <button 
+                        onClick={() => setPreviewMode('slide')}
+                        className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'slide' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
+                        title="Slide View"
+                    >
+                        <Presentation size={16}/>
+                        <span className="hidden sm:inline">Slide View</span>
+                    </button>
+                    <button 
+                        onClick={() => setPreviewMode('mindmap')}
+                        className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'mindmap' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
+                        title="Structure View"
+                    >
+                        <List size={16}/>
+                        <span className="hidden sm:inline">Structure View</span>
+                    </button>
+                    <button 
+                        onClick={() => setPreviewMode('cuecard')}
+                        className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'cuecard' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
+                        title="Cue Card View"
+                    >
+                        <SquareCheckBig size={16}/>
+                        <span className="hidden sm:inline">Cue Card</span>
+                    </button>
+                </div>
+                <ImportExportMenu
+                  onMarkdownImport={handleMarkdownImport}
+                  onMarkdownExport={handleMarkdownExport}
+                  onMindMapPdfExport={handleMindMapPdfExport}
+                  onEpubExport={handleEpubExport}
+                  onDocxExport={handleDocxExport}
+                  isExportingPdf={isPdfExporting}
+                  pdfExportProgress={pdfExportProgress}
+                />
+                <button
+                  onClick={handleRestartPresentation}
+                  className="px-3 sm:px-4 py-2 bg-slate-700 text-white rounded-md font-semibold hover:bg-slate-600 transition-colors flex items-center gap-2"
+                  title="Ricomincia la presentazione"
                 >
-                    <Presentation size={16}/>
-                    <span className="hidden sm:inline">Slide View</span>
+                  <RotateCcw size={16} />
+                  <span className="hidden sm:inline">Ricomincia</span>
                 </button>
-                 <button 
-                    onClick={() => setPreviewMode('mindmap')}
-                    className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'mindmap' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
-                    title="Structure View"
+                <button
+                onClick={() => setViewMode('edit')}
+                className="px-3 sm:px-4 py-2 bg-slate-700 text-white rounded-md font-semibold hover:bg-slate-600 transition-colors flex items-center gap-2"
+                title="Edit Speech"
                 >
-                    <List size={16}/>
-                    <span className="hidden sm:inline">Structure View</span>
-                </button>
-                 <button 
-                    onClick={() => setPreviewMode('cuecard')}
-                    className={`px-2 sm:px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors ${previewMode === 'cuecard' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
-                    title="Cue Card View"
-                >
-                    <SquareCheckBig size={16}/>
-                    <span className="hidden sm:inline">Cue Card</span>
+                <FilePenLine size={16} />
+                <span className="hidden sm:inline">Edit Speech</span>
                 </button>
             </div>
-            <ImportExportMenu
-              onMarkdownImport={handleMarkdownImport}
-              onMarkdownExport={handleMarkdownExport}
-              onMindMapPdfExport={handleMindMapPdfExport}
-              onEpubExport={handleEpubExport}
-              onDocxExport={handleDocxExport}
-              isExportingPdf={isPdfExporting}
-              pdfExportProgress={pdfExportProgress}
-            />
-            <button
-              onClick={handleRestartPresentation}
-              className="px-3 sm:px-4 py-2 bg-slate-700 text-white rounded-md font-semibold hover:bg-slate-600 transition-colors flex items-center gap-2"
-              title="Ricomincia la presentazione"
-            >
-              <RotateCcw size={16} />
-              <span className="hidden sm:inline">Ricomincia</span>
-            </button>
-            <button
-            onClick={() => setViewMode('edit')}
-            className="px-3 sm:px-4 py-2 bg-slate-700 text-white rounded-md font-semibold hover:bg-slate-600 transition-colors flex items-center gap-2"
-            title="Edit Speech"
-            >
-            <FilePenLine size={16} />
-            <span className="hidden sm:inline">Edit Speech</span>
-            </button>
+          </div>
         </div>
+        <button
+          onClick={() => setIsHeaderCollapsed(prev => !prev)}
+          className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 w-16 h-6 bg-slate-700 hover:bg-slate-600 rounded-t-md flex items-center justify-center transition-colors"
+          title={isHeaderCollapsed ? 'Show controls' : 'Hide controls'}
+        >
+          {isHeaderCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+        </button>
       </header>
       <main className="flex-grow flex flex-col relative">
         {renderPreview()}
